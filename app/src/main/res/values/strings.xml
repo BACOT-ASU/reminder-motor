@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default (English). Indonesian translations live in values-in/strings.xml -->
+<resources>
+    <string name="app_name">Motor Reminder</string>
+    <string name="welcome_message">The app is installed. Service reminder features are coming next.</string>
+</resources>
