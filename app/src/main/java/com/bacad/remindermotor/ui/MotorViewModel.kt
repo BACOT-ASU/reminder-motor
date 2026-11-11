@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bacad.remindermotor.data.AppDatabase
+import com.bacad.remindermotor.data.MaintenanceItem
 import com.bacad.remindermotor.data.Motor
 import com.bacad.remindermotor.data.MotorRepository
 import com.bacad.remindermotor.data.MotorType
@@ -27,5 +28,17 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
 
     fun deleteMotor(motor: Motor) {
         viewModelScope.launch { repo.deleteMotor(motor) }
+    }
+
+    fun updateOdometer(motorId: Long, km: Int) {
+        viewModelScope.launch { repo.updateOdometer(motorId, km) }
+    }
+
+    fun markDone(item: MaintenanceItem, odometerKm: Int) {
+        viewModelScope.launch { repo.markDone(item, odometerKm) }
+    }
+
+    fun setLastService(item: MaintenanceItem, date: Long, km: Int) {
+        viewModelScope.launch { repo.setLastService(item, date, km) }
     }
 }

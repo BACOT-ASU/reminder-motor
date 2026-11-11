@@ -48,7 +48,18 @@ interface AppDao {
     @Insert
     suspend fun insertRecord(record: ServiceRecord): Long
 
+    /** Riwayat lengkap satu item, terbaru di atas. */
+    @Query("SELECT * FROM service_record WHERE itemId = :itemId ORDER BY date DESC, id DESC")
+    fun observeRecords(itemId: Long): Flow<List<ServiceRecord>>
+
+    /** Menghapus titik awal otomatis, dipakai saat pengguna mengisi servis terakhir yang sebenarnya. */
+    @Query("DELETE FROM service_record WHERE itemId = :itemId AND action = 'INITIAL'")
+    suspend fun deleteInitialRecords(itemId: Long)
+
     // ---- Odometer ----
+    @Query("UPDATE motor SET odometerKm = :km, odometerDate = :date WHERE id = :motorId")
+    suspend fun updateMotorOdometer(motorId: Long, km: Int, date: Long)
+
     @Insert
     suspend fun insertOdometerLog(log: OdometerLog): Long
 }

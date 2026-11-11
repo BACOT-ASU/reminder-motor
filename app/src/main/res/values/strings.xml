@@ -18,7 +18,7 @@
     <string name="cancel">Cancel</string>
     <string name="delete_motor">Delete motorcycle</string>
     <string name="delete_motor_confirm">Delete %1$s and all its service data?</string>
-    <string name="km_value">%1$d km</string>
+    <string name="km_value">%1$,d km</string>
     <string name="every_km">every %1$d km</string>
     <string name="every_days">every %1$d days</string>
     <string name="item_type_replace">Replace</string>
@@ -35,4 +35,32 @@
     <string name="item_coolant">Coolant</string>
     <string name="item_brake_fluid">Brake fluid</string>
     <string name="item_cvt_belt">CVT belt &amp; rollers</string>
+
+    <!-- Tahap 3: status & grid -->
+    <string name="status_ok">OK</string>
+    <string name="status_soon">Due soon</string>
+    <string name="status_replace_now">Replace now</string>
+    <string name="status_check_now">Check now</string>
+    <string name="remaining_km">%1$,d km left</string>
+    <string name="overdue_km">%1$,d km overdue</string>
+    <string name="remaining_days">%1$d days left</string>
+    <string name="overdue_days">%1$d days overdue</string>
+    <string name="odometer_updated_today">updated today</string>
+    <string name="odometer_updated_days_ago">updated %1$d days ago</string>
+    <string name="update_km">Update km</string>
+    <string name="summary_counts">%1$d need service now · %2$d due soon</string>
+    <string name="odometer_lower_warning">This is lower than the previous reading. Save only if you are correcting a typo.</string>
+    <string name="interval_label">Interval: %1$s</string>
+    <string name="counting_since">Counting since %1$s at %2$,d km</string>
+    <string name="last_done">Last done: %1$s at %2$,d km</string>
+    <string name="initial_hint">Not sure this is accurate? Use "Set last service" to enter when it was really done.</string>
+    <string name="mark_replaced">Mark as replaced</string>
+    <string name="mark_checked">Mark as checked</string>
+    <string name="mark_done_note">Recorded as today, at %1$,d km. Update km first if the odometer is out of date.</string>
+    <string name="set_last_service">Set last service</string>
+    <string name="close">Close</string>
+    <string name="ok">OK</string>
+    <string name="date_future_error">Date cannot be in the future.</string>
+    <string name="km_at_service">Odometer at that time (km)</string>
+    <string name="km_above_odometer_error">Cannot be higher than the current odometer (%1$,d km).</string>
 </resources>

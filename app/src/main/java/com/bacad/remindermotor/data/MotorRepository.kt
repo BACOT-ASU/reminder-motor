@@ -48,4 +48,38 @@ class MotorRepository(private val db: AppDatabase) {
     }
 
     suspend fun deleteMotor(motor: Motor) = dao.deleteMotor(motor)
+
+    fun observeRecords(itemId: Long) = dao.observeRecords(itemId)
+
+    /** Input km dari spidometer: perbarui motor dan simpan ke log. */
+    suspend fun updateOdometer(motorId: Long, km: Int) {
+        val today = LocalDate.now().toEpochDay()
+        db.withTransaction {
+            dao.updateMotorOdometer(motorId, km, today)
+            dao.insertOdometerLog(OdometerLog(motorId = motorId, date = today, km = km))
+        }
+    }
+
+    /** Tombol "Sudah diganti" / "Sudah dicek": dicatat hari ini dengan odometer sekarang. */
+    suspend fun markDone(item: MaintenanceItem, odometerKm: Int) {
+        dao.insertRecord(
+            ServiceRecord(
+                itemId = item.id,
+                date = LocalDate.now().toEpochDay(),
+                km = odometerKm,
+                action = actionFor(item)
+            )
+        )
+    }
+
+    /** Mengisi kapan item ini terakhir benar-benar diganti/dicek (menggantikan titik awal otomatis). */
+    suspend fun setLastService(item: MaintenanceItem, date: Long, km: Int) {
+        db.withTransaction {
+            dao.deleteInitialRecords(item.id)
+            dao.insertRecord(ServiceRecord(itemId = item.id, date = date, km = km, action = actionFor(item)))
+        }
+    }
+
+    private fun actionFor(item: MaintenanceItem) =
+        if (item.type == ItemType.CHECK) ServiceAction.CHECK else ServiceAction.REPLACE
 }
