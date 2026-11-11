@@ -23,6 +23,9 @@ interface AppDao {
     @Delete
     suspend fun deleteMotor(motor: Motor)
 
+    @Update
+    suspend fun updateMotor(motor: Motor)
+
     // ---- Item perawatan ----
     @Query("SELECT * FROM maintenance_item WHERE motorId = :motorId ORDER BY id")
     fun observeItems(motorId: Long): Flow<List<MaintenanceItem>>

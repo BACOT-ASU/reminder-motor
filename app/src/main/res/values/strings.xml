@@ -99,4 +99,12 @@
     <string name="interval_fields_hint">Fill in at least one. Whichever is reached first triggers the reminder.</string>
     <string name="delete_item">Delete item</string>
     <string name="delete_item_confirm">Delete this item and its history?</string>
+
+    <!-- Foto & nomor polisi -->
+    <string name="plate_number">Plate number (optional)</string>
+    <string name="photo_gallery">Gallery</string>
+    <string name="photo_camera">Camera</string>
+    <string name="photo_remove">Remove photo</string>
+    <string name="edit_motor">Edit motorcycle</string>
+    <string name="type_locked_note">type can\'t be changed because it determines the item list</string>
 </resources>

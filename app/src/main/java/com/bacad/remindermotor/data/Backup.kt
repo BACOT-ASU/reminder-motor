@@ -1,5 +1,6 @@
 package com.bacad.remindermotor.data
 
+import android.content.Context
 import androidx.room.withTransaction
 import org.json.JSONArray
 import org.json.JSONObject
@@ -11,7 +12,7 @@ import org.json.JSONObject
 object Backup {
     private const val FORMAT_VERSION = 1
 
-    suspend fun export(db: AppDatabase): String {
+    suspend fun export(db: AppDatabase, context: Context): String {
         val dao = db.dao()
         val root = JSONObject()
         root.put("app", "reminder-motor")
@@ -23,6 +24,7 @@ object Backup {
                     put("id", m.id); put("name", m.name); put("type", m.type.name)
                     put("hasRadiator", m.hasRadiator); put("odometerKm", m.odometerKm)
                     put("odometerDate", m.odometerDate); putOpt("bluetoothTrigger", m.bluetoothTrigger)
+                    putOpt("plateNumber", m.plateNumber); putOpt("photo", PhotoStore.toBase64(m.photoPath))
                 })
             }
         })
@@ -56,7 +58,7 @@ object Backup {
     }
 
     /** @throws IllegalArgumentException jika file bukan backup aplikasi ini. */
-    suspend fun import(db: AppDatabase, json: String) {
+    suspend fun import(db: AppDatabase, context: Context, json: String) {
         val root = try { JSONObject(json) } catch (e: Exception) {
             throw IllegalArgumentException("not json")
         }
@@ -67,7 +69,9 @@ object Backup {
                 id = o.getLong("id"), name = o.getString("name"),
                 type = MotorType.valueOf(o.getString("type")), hasRadiator = o.getBoolean("hasRadiator"),
                 odometerKm = o.getInt("odometerKm"), odometerDate = o.getLong("odometerDate"),
-                bluetoothTrigger = o.optStringOrNull("bluetoothTrigger")
+                bluetoothTrigger = o.optStringOrNull("bluetoothTrigger"),
+                plateNumber = o.optStringOrNull("plateNumber"),
+                photoPath = PhotoStore.fromBase64(context, o.optStringOrNull("photo"))
             )
         }
         val items = root.getJSONArray("items").objects().map { o ->
@@ -94,11 +98,13 @@ object Backup {
         }
 
         val dao = db.dao()
+        val oldPhotos = dao.getMotors().mapNotNull { it.photoPath }
         db.withTransaction {
             dao.clearRecords(); dao.clearOdometerLogs(); dao.clearItems(); dao.clearMotors()
             dao.insertMotors(motors); dao.insertItems(items)
             dao.insertRecords(records); dao.insertOdometerLogs(logs)
         }
+        oldPhotos.forEach { PhotoStore.delete(it) }
     }
 
     private fun JSONArray.objects(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }

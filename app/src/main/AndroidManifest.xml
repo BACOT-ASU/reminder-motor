@@ -19,6 +19,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Membagikan file sementara ke aplikasi kamera untuk foto motor -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- Menyimpan pilihan bahasa aplikasi di Android 12 ke bawah -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

@@ -16,7 +16,14 @@ class MotorRepository(private val db: AppDatabase) {
      * Untuk sementara semua item dianggap "mulai hari ini" (catatan INITIAL);
      * layar onboarding untuk mengisi tanggal ganti terakhir menyusul di tahap 3.
      */
-    suspend fun addMotor(name: String, type: MotorType, hasRadiator: Boolean, odometerKm: Int): Long {
+    suspend fun addMotor(
+        name: String,
+        type: MotorType,
+        hasRadiator: Boolean,
+        odometerKm: Int,
+        plateNumber: String? = null,
+        photoPath: String? = null
+    ): Long {
         val today = LocalDate.now().toEpochDay()
         return db.withTransaction {
             val motorId = dao.insertMotor(
@@ -25,7 +32,9 @@ class MotorRepository(private val db: AppDatabase) {
                     type = type,
                     hasRadiator = hasRadiator,
                     odometerKm = odometerKm,
-                    odometerDate = today
+                    odometerDate = today,
+                    plateNumber = plateNumber,
+                    photoPath = photoPath
                 )
             )
             dao.insertOdometerLog(OdometerLog(motorId = motorId, date = today, km = odometerKm))
@@ -48,6 +57,9 @@ class MotorRepository(private val db: AppDatabase) {
     }
 
     suspend fun deleteMotor(motor: Motor) = dao.deleteMotor(motor)
+
+    /** Ubah nama, nomor polisi, atau foto. */
+    suspend fun updateMotor(motor: Motor) = dao.updateMotor(motor)
 
     fun observeRecords(itemId: Long) = dao.observeRecords(itemId)
 

@@ -2,7 +2,7 @@
 
 Aplikasi Android pribadi untuk mengingatkan servis motor berdasarkan kilometer dan waktu. Tampilannya berupa grid ikon sparepart: merah saat waktunya ganti, hijau setelah diganti.
 
-Status: **tahap 5.** Grid ikon status, notifikasi harian, pilihan bahasa (Indonesia/English), atur item per motor, jam notifikasi, serta backup & restore.
+Status: **tahap 5+.** Grid ikon status, notifikasi harian, pilihan bahasa (Indonesia/English), atur item per motor, jam notifikasi, serta backup & restore, plus foto motor (galeri/kamera) dan nomor polisi.
 
 ## Cara mendapatkan APK
 

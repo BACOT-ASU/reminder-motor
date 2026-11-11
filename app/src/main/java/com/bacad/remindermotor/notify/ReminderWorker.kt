@@ -41,6 +41,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         Notifier.createChannels(ctx)
 
         for (motor in dao.getMotors()) {
+            val motorLabel = if (motor.plateNumber.isNullOrBlank()) motor.name else "${motor.name} (${motor.plateNumber})"
             val lastByItem = dao.getLatestRecords(motor.id).associateBy { it.itemId }
             val toAnnounce = mutableListOf<Pair<String, ItemStatus>>()
 
@@ -77,7 +78,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
                     Notifier.CHANNEL_SERVICE,
                     notificationId = (motor.id * 2).toInt(),
                     motorId = motor.id,
-                    title = ctx.getString(R.string.notif_service_title, motor.name),
+                    title = ctx.getString(R.string.notif_service_title, motorLabel),
                     text = lines.joinToString("\n")
                 )
             }
@@ -93,7 +94,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
                     Notifier.CHANNEL_ODOMETER,
                     notificationId = (motor.id * 2 + 1).toInt(),
                     motorId = motor.id,
-                    title = ctx.getString(R.string.notif_odometer_title, motor.name),
+                    title = ctx.getString(R.string.notif_odometer_title, motorLabel),
                     text = ctx.getString(R.string.notif_odometer_text, daysSinceOdo.toInt())
                 )
                 prefs.edit().putLong("odo_${motor.id}", today).apply()

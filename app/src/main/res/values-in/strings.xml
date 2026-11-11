@@ -99,4 +99,12 @@
     <string name="interval_fields_hint">Isi minimal salah satu. Mana yang tercapai lebih dulu akan memicu pengingat.</string>
     <string name="delete_item">Hapus item</string>
     <string name="delete_item_confirm">Hapus item ini beserta riwayatnya?</string>
+
+    <!-- Foto & nomor polisi -->
+    <string name="plate_number">Nomor polisi (opsional)</string>
+    <string name="photo_gallery">Galeri</string>
+    <string name="photo_camera">Kamera</string>
+    <string name="photo_remove">Hapus foto</string>
+    <string name="edit_motor">Edit motor</string>
+    <string name="type_locked_note">jenis tidak bisa diubah karena menentukan daftar item</string>
 </resources>

@@ -29,7 +29,11 @@ data class Motor(
     val hasRadiator: Boolean,
     val odometerKm: Int,
     val odometerDate: Long,
-    val bluetoothTrigger: String? = null
+    val bluetoothTrigger: String? = null,
+    /** Nomor polisi, mis. "B 1234 XYZ" (versi DB 2). */
+    val plateNumber: String? = null,
+    /** Path file foto di penyimpanan internal aplikasi (versi DB 2). */
+    val photoPath: String? = null
 )
 
 @Entity(

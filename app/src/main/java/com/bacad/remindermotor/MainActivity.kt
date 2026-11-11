@@ -29,6 +29,7 @@ import com.bacad.remindermotor.notify.Notifier
 import com.bacad.remindermotor.notify.ReminderWorker
 import com.bacad.remindermotor.settings.AppSettings
 import com.bacad.remindermotor.ui.AddMotorScreen
+import com.bacad.remindermotor.ui.EditMotorScreen
 import com.bacad.remindermotor.ui.ItemSettingsScreen
 import com.bacad.remindermotor.ui.LanguagePickerScreen
 import com.bacad.remindermotor.ui.MotorDetailScreen
@@ -82,6 +83,7 @@ private object Route {
     const val DETAIL = "detail"
     const val ITEMS = "items"
     const val SETTINGS = "settings"
+    const val EDIT = "edit"
 }
 
 @Composable
@@ -115,14 +117,14 @@ fun App(
     }
 
     BackHandler(enabled = route != Route.LIST) {
-        route = if (route == Route.ITEMS) Route.DETAIL else Route.LIST
+        route = if (route == Route.ITEMS || route == Route.EDIT) Route.DETAIL else Route.LIST
     }
 
     when (route) {
         Route.ADD -> AddMotorScreen(
             onBack = { route = Route.LIST },
-            onSave = { name, type, radiator, km ->
-                vm.addMotor(name, type, radiator, km) { newId ->
+            onSave = { name, type, radiator, km, plate, photo ->
+                vm.addMotor(name, type, radiator, km, plate, photo) { newId ->
                     motorId = newId
                     route = Route.DETAIL
                 }
@@ -132,8 +134,21 @@ fun App(
             motorId = motorId,
             vm = vm,
             onBack = { route = Route.LIST },
-            onManageItems = { route = Route.ITEMS }
+            onManageItems = { route = Route.ITEMS },
+            onEdit = { route = Route.EDIT }
         )
+        Route.EDIT -> {
+            val motor = motors.firstOrNull { it.id == motorId }
+            if (motor != null) {
+                EditMotorScreen(
+                    motor = motor,
+                    onBack = { route = Route.DETAIL },
+                    onSave = { name, plate, newPhoto, removePhoto ->
+                        vm.updateMotorInfo(motor, name, plate, newPhoto, removePhoto) { route = Route.DETAIL }
+                    }
+                )
+            }
+        }
         Route.ITEMS -> ItemSettingsScreen(
             motorId = motorId,
             vm = vm,

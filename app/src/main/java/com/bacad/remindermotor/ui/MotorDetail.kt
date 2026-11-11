@@ -23,7 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -112,7 +112,8 @@ fun MotorDetailScreen(
     motorId: Long,
     vm: MotorViewModel,
     onBack: () -> Unit,
-    onManageItems: () -> Unit
+    onManageItems: () -> Unit,
+    onEdit: () -> Unit
 ) {
     val motor by remember(motorId) { vm.repo.observeMotor(motorId) }.collectAsState(initial = null)
     val items by remember(motorId) { vm.repo.observeItems(motorId) }.collectAsState(initial = emptyList())
@@ -139,6 +140,9 @@ fun MotorDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.edit_motor))
+                    }
                     IconButton(onClick = onManageItems) {
                         Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.manage_items))
                     }
@@ -222,9 +226,18 @@ private fun OdometerHeader(motor: Motor, today: Long, states: List<ItemState>, o
 
     Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onEdit)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Filled.Speed, contentDescription = null, modifier = Modifier.size(36.dp))
+            MotorPhoto(source = photoUri(motor.photoPath), size = 64.dp)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
+                val plate = motor.plateNumber
+                if (!plate.isNullOrBlank()) {
+                    Text(
+                        plate,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Text(
                     stringResource(R.string.km_value, motor.odometerKm),
                     style = MaterialTheme.typography.headlineSmall,

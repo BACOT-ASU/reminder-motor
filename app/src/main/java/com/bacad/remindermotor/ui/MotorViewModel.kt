@@ -11,6 +11,7 @@ import com.bacad.remindermotor.data.MaintenanceItem
 import com.bacad.remindermotor.data.Motor
 import com.bacad.remindermotor.data.MotorRepository
 import com.bacad.remindermotor.data.MotorType
+import com.bacad.remindermotor.data.PhotoStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,15 +26,52 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
     val motors: StateFlow<List<Motor>> = repo.observeMotors()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun addMotor(name: String, type: MotorType, hasRadiator: Boolean, odometerKm: Int, onDone: (Long) -> Unit) {
+    fun addMotor(
+        name: String,
+        type: MotorType,
+        hasRadiator: Boolean,
+        odometerKm: Int,
+        plateNumber: String?,
+        photoUri: Uri?,
+        onDone: (Long) -> Unit
+    ) {
         viewModelScope.launch {
-            val id = repo.addMotor(name, type, hasRadiator, odometerKm)
+            val photoPath = photoUri?.let { savePhoto(it) }
+            val id = repo.addMotor(name, type, hasRadiator, odometerKm, plateNumber, photoPath)
             onDone(id)
         }
     }
 
+    /**
+     * Ubah nama/plat/foto. newPhotoUri != null = ganti foto; removePhoto = hapus foto.
+     */
+    fun updateMotorInfo(motor: Motor, name: String, plateNumber: String?, newPhotoUri: Uri?, removePhoto: Boolean, onDone: () -> Unit) {
+        viewModelScope.launch {
+            var photoPath = motor.photoPath
+            if (newPhotoUri != null) {
+                val saved = savePhoto(newPhotoUri)
+                if (saved != null) {
+                    PhotoStore.delete(motor.photoPath)
+                    photoPath = saved
+                }
+            } else if (removePhoto) {
+                PhotoStore.delete(motor.photoPath)
+                photoPath = null
+            }
+            repo.updateMotor(motor.copy(name = name, plateNumber = plateNumber, photoPath = photoPath))
+            onDone()
+        }
+    }
+
+    private suspend fun savePhoto(uri: Uri): String? = withContext(Dispatchers.IO) {
+        PhotoStore.saveFromUri(getApplication(), uri)
+    }
+
     fun deleteMotor(motor: Motor) {
-        viewModelScope.launch { repo.deleteMotor(motor) }
+        viewModelScope.launch {
+            repo.deleteMotor(motor)
+            PhotoStore.delete(motor.photoPath)
+        }
     }
 
     fun updateOdometer(motorId: Long, km: Int) {
@@ -60,7 +98,7 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
     fun exportBackup(uri: Uri, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             val ok = runCatching {
-                val json = Backup.export(db)
+                val json = Backup.export(db, getApplication())
                 withContext(Dispatchers.IO) {
                     getApplication<Application>().contentResolver.openOutputStream(uri, "wt")!!
                         .use { it.write(json.toByteArray()) }
@@ -78,7 +116,7 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
                     getApplication<Application>().contentResolver.openInputStream(uri)!!
                         .use { it.readBytes().toString(Charsets.UTF_8) }
                 }
-                Backup.import(db, json)
+                Backup.import(db, getApplication(), json)
             }.isSuccess
             onResult(ok)
         }
