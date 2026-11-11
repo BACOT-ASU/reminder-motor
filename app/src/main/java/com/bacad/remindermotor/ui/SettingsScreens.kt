@@ -95,7 +95,7 @@ fun LanguagePickerScreen(onChosen: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(vm: MotorViewModel, onBack: () -> Unit) {
+fun SettingsScreen(vm: MotorViewModel, onBack: () -> Unit, onOpenTrips: () -> Unit) {
     val context = LocalContext.current
     var showTimePicker by remember { mutableStateOf(false) }
     var pendingRestoreUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -162,6 +162,11 @@ fun SettingsScreen(vm: MotorViewModel, onBack: () -> Unit) {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            // ---- Tracking GPS ----
+            SectionTitle(stringResource(R.string.tracking_gps))
+            TrackingSettingsSection(onOpenTrips = onOpenTrips)
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
 
             // ---- Backup ----

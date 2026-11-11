@@ -1,9 +1,11 @@
 package com.bacad.remindermotor.data
 
+import android.content.Context
 import androidx.room.withTransaction
+import com.bacad.remindermotor.tracking.Calibration
 import java.time.LocalDate
 
-class MotorRepository(private val db: AppDatabase) {
+class MotorRepository(private val db: AppDatabase, private val context: Context) {
     private val dao = db.dao()
 
     fun observeMotors() = dao.observeMotors()
@@ -66,6 +68,8 @@ class MotorRepository(private val db: AppDatabase) {
     /** Input km dari spidometer: perbarui motor dan simpan ke log. */
     suspend fun updateOdometer(motorId: Long, km: Int) {
         val today = LocalDate.now().toEpochDay()
+        // Kalibrasi GPS: bandingkan km spido baru dengan km GPS sejak input spido sebelumnya.
+        Calibration.onSpeedometer(context, motorId, dao.getLatestSpeedoKm(motorId), km)
         db.withTransaction {
             dao.updateMotorOdometer(motorId, km, today)
             dao.insertOdometerLog(OdometerLog(motorId = motorId, date = today, km = km))

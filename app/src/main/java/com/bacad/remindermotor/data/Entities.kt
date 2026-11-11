@@ -99,3 +99,24 @@ data class OdometerLog(
     val km: Int,
     val source: OdometerSource = OdometerSource.SPEEDOMETER
 )
+
+/** Cara perjalanan direkam. */
+enum class TrackingMode { OFF, MANUAL, BLUETOOTH, AUTO }
+
+/** PENDING = menunggu konfirmasi, CONFIRMED = km sudah ditambahkan ke motor, NOT_MOTOR = diabaikan. */
+enum class TripStatus { PENDING, CONFIRMED, NOT_MOTOR }
+
+/** Satu perjalanan hasil GPS (versi DB 3). Jarak disimpan mentah (belum dikalibrasi). */
+@Entity(tableName = "trip")
+data class Trip(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    /** Motor yang dikonfirmasi (atau yang disarankan saat masih PENDING). */
+    val motorId: Long?,
+    val startTime: Long,
+    val endTime: Long,
+    val distanceMeters: Double,
+    val maxSpeedKmh: Double,
+    val avgSpeedKmh: Double,
+    val status: TripStatus,
+    val mode: TrackingMode
+)

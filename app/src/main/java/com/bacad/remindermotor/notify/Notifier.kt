@@ -17,6 +17,8 @@ import com.bacad.remindermotor.R
 object Notifier {
     const val CHANNEL_SERVICE = "service_reminder"
     const val CHANNEL_ODOMETER = "odometer_reminder"
+    const val CHANNEL_TRACKING = "gps_tracking"
+    const val CHANNEL_TRIPS = "trip_confirmation"
     const val EXTRA_MOTOR_ID = "motorId"
 
     fun createChannels(context: Context) {
@@ -33,6 +35,20 @@ object Notifier {
                 CHANNEL_ODOMETER,
                 context.getString(R.string.channel_odometer),
                 NotificationManager.IMPORTANCE_LOW
+            )
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_TRACKING,
+                context.getString(R.string.channel_tracking),
+                NotificationManager.IMPORTANCE_LOW
+            )
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_TRIPS,
+                context.getString(R.string.channel_trips),
+                NotificationManager.IMPORTANCE_DEFAULT
             )
         )
     }

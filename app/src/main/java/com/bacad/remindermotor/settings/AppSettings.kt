@@ -3,6 +3,7 @@ package com.bacad.remindermotor.settings
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import com.bacad.remindermotor.data.TrackingMode
 
 /** Pengaturan sederhana yang disimpan di SharedPreferences. */
 object AppSettings {
@@ -30,6 +31,17 @@ object AppSettings {
     fun setLanguage(context: Context, lang: String) {
         prefs(context).edit().putBoolean(KEY_LANGUAGE_CHOSEN, true).apply()
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(lang))
+    }
+
+    // ---- Mode tracking GPS ----
+    private const val KEY_TRACKING_MODE = "tracking_mode"
+
+    fun trackingMode(context: Context): TrackingMode =
+        runCatching { TrackingMode.valueOf(prefs(context).getString(KEY_TRACKING_MODE, null) ?: "OFF") }
+            .getOrDefault(TrackingMode.OFF)
+
+    fun setTrackingMode(context: Context, mode: TrackingMode) {
+        prefs(context).edit().putString(KEY_TRACKING_MODE, mode.name).apply()
     }
 
     // ---- Jam notifikasi ----

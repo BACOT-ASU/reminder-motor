@@ -13,8 +13,8 @@ android {
         applicationId = "com.bacad.remindermotor"
         minSdk = 26
         targetSdk = 34
-        versionCode = 6
-        versionName = "0.6"
+        versionCode = 7
+        versionName = "0.7"
     }
 
     buildTypes {
@@ -54,6 +54,9 @@ dependencies {
 
     // WorkManager: pengecekan harian di latar belakang
     implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // Lokasi GPS dan deteksi aktivitas (Google Play Services)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Room: database lokal (SQLite)
     val roomVersion = "2.6.1"

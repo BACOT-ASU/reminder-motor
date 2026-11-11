@@ -12,6 +12,8 @@ import com.bacad.remindermotor.data.Motor
 import com.bacad.remindermotor.data.MotorRepository
 import com.bacad.remindermotor.data.MotorType
 import com.bacad.remindermotor.data.PhotoStore
+import com.bacad.remindermotor.tracking.TripNotifications
+import com.bacad.remindermotor.tracking.TripRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +23,19 @@ import kotlinx.coroutines.withContext
 
 class MotorViewModel(app: Application) : AndroidViewModel(app) {
     private val db = AppDatabase.get(app)
-    val repo = MotorRepository(db)
+    val repo = MotorRepository(db, app)
+
+    private val tripRepo = TripRepository(app)
+    val trips = tripRepo.observeTrips()
+    val pendingTripCount: StateFlow<Int> = tripRepo.observePendingCount()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    fun confirmTrip(tripId: Long, motorId: Long?) {
+        viewModelScope.launch {
+            tripRepo.confirm(tripId, motorId)
+            TripNotifications.cancel(getApplication(), tripId)
+        }
+    }
 
     val motors: StateFlow<List<Motor>> = repo.observeMotors()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -45,7 +59,15 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
     /**
      * Ubah nama/plat/foto. newPhotoUri != null = ganti foto; removePhoto = hapus foto.
      */
-    fun updateMotorInfo(motor: Motor, name: String, plateNumber: String?, newPhotoUri: Uri?, removePhoto: Boolean, onDone: () -> Unit) {
+    fun updateMotorInfo(
+        motor: Motor,
+        name: String,
+        plateNumber: String?,
+        newPhotoUri: Uri?,
+        removePhoto: Boolean,
+        bluetoothTrigger: String?,
+        onDone: () -> Unit
+    ) {
         viewModelScope.launch {
             var photoPath = motor.photoPath
             if (newPhotoUri != null) {
@@ -58,7 +80,9 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
                 PhotoStore.delete(motor.photoPath)
                 photoPath = null
             }
-            repo.updateMotor(motor.copy(name = name, plateNumber = plateNumber, photoPath = photoPath))
+            repo.updateMotor(
+                motor.copy(name = name, plateNumber = plateNumber, photoPath = photoPath, bluetoothTrigger = bluetoothTrigger)
+            )
             onDone()
         }
     }

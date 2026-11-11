@@ -164,6 +164,9 @@ fun MotorDetailScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 OdometerHeader(m, today, states, onEdit = { editOdometer = true })
             }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                TrackingCard(m)
+            }
             items(states, key = { it.item.id }) { state ->
                 ItemTile(state, onClick = { selectedItemId = state.item.id })
             }

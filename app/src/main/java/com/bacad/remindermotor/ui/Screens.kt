@@ -64,7 +64,9 @@ fun MotorListScreen(
     onAdd: () -> Unit,
     onOpen: (Motor) -> Unit,
     onCheckNow: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    pendingTrips: Int = 0,
+    onOpenTrips: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -99,6 +101,23 @@ fun MotorListScreen(
                 contentPadding = PaddingValues(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (pendingTrips > 0) {
+                    item {
+                        Card(
+                            onClick = onOpenTrips,
+                            colors = androidx.compose.material3.CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.trip_pending_banner, pendingTrips),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                }
                 items(motors, key = { it.id }) { motor ->
                     Card(
                         onClick = { onOpen(motor) },
@@ -237,12 +256,13 @@ fun AddMotorScreen(
 fun EditMotorScreen(
     motor: Motor,
     onBack: () -> Unit,
-    onSave: (name: String, plate: String?, newPhoto: Uri?, removePhoto: Boolean) -> Unit
+    onSave: (name: String, plate: String?, newPhoto: Uri?, removePhoto: Boolean, bluetooth: String?) -> Unit
 ) {
     var name by remember(motor.id) { mutableStateOf(motor.name) }
     var plate by remember(motor.id) { mutableStateOf(motor.plateNumber ?: "") }
     var newPhoto by remember(motor.id) { mutableStateOf<Uri?>(null) }
     var removePhoto by remember(motor.id) { mutableStateOf(false) }
+    var bluetooth by remember(motor.id) { mutableStateOf(motor.bluetoothTrigger) }
     var saving by remember { mutableStateOf(false) }
 
     val shownPhoto = newPhoto ?: if (removePhoto) null else photoUri(motor.photoPath)
@@ -269,6 +289,7 @@ fun EditMotorScreen(
                 onRemove = { newPhoto = null; removePhoto = true }
             )
             NameAndPlateFields(name, { name = it }, plate, { plate = it })
+            BluetoothTriggerField(current = bluetooth, onChange = { bluetooth = it })
             Text(
                 "${motorTypeLabel(motor.type)} · ${stringResource(R.string.type_locked_note)}",
                 style = MaterialTheme.typography.bodySmall
@@ -277,7 +298,7 @@ fun EditMotorScreen(
             Button(
                 onClick = {
                     saving = true
-                    onSave(name.trim(), cleanPlate(plate), newPhoto, removePhoto)
+                    onSave(name.trim(), cleanPlate(plate), newPhoto, removePhoto, bluetooth)
                 },
                 enabled = name.isNotBlank() && !saving,
                 modifier = Modifier.fillMaxWidth()

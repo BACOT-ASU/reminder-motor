@@ -111,6 +111,35 @@ interface AppDao {
     @Insert suspend fun insertRecords(list: List<ServiceRecord>)
     @Insert suspend fun insertOdometerLogs(list: List<OdometerLog>)
 
+    // ---- Perjalanan GPS ----
+    @Insert
+    suspend fun insertTrip(trip: Trip): Long
+
+    @Query("SELECT * FROM trip WHERE id = :id")
+    suspend fun getTrip(id: Long): Trip?
+
+    @Query("UPDATE trip SET status = :status, motorId = :motorId WHERE id = :id")
+    suspend fun updateTripStatus(id: Long, status: String, motorId: Long?)
+
+    @Query("SELECT * FROM trip ORDER BY startTime DESC LIMIT 100")
+    fun observeTrips(): Flow<List<Trip>>
+
+    @Query("SELECT COUNT(*) FROM trip WHERE status = 'PENDING'")
+    fun observePendingTripCount(): Flow<Int>
+
+    @Query("SELECT * FROM motor WHERE id = :id")
+    suspend fun getMotor(id: Long): Motor?
+
+    @Query("SELECT * FROM motor WHERE bluetoothTrigger = :address")
+    suspend fun getMotorsByBluetooth(address: String): List<Motor>
+
+    /** Tambah km dari GPS tanpa mengubah tanggal input spidometer terakhir. */
+    @Query("UPDATE motor SET odometerKm = odometerKm + :km WHERE id = :motorId")
+    suspend fun addOdometerKm(motorId: Long, km: Int)
+
+    @Query("SELECT km FROM odometer_log WHERE motorId = :motorId AND source = 'SPEEDOMETER' ORDER BY date DESC, id DESC LIMIT 1")
+    suspend fun getLatestSpeedoKm(motorId: Long): Int?
+
     // ---- Odometer ----
     @Query("UPDATE motor SET odometerKm = :km, odometerDate = :date WHERE id = :motorId")
     suspend fun updateMotorOdometer(motorId: Long, km: Int, date: Long)

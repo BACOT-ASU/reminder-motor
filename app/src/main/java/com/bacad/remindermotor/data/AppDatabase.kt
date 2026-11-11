@@ -8,8 +8,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Motor::class, MaintenanceItem::class, ServiceRecord::class, OdometerLog::class],
-    version = 2,
+    entities = [Motor::class, MaintenanceItem::class, ServiceRecord::class, OdometerLog::class, Trip::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -24,6 +24,24 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** Versi 3: tabel perjalanan GPS. */
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `trip` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`motorId` INTEGER, " +
+                        "`startTime` INTEGER NOT NULL, " +
+                        "`endTime` INTEGER NOT NULL, " +
+                        "`distanceMeters` REAL NOT NULL, " +
+                        "`maxSpeedKmh` REAL NOT NULL, " +
+                        "`avgSpeedKmh` REAL NOT NULL, " +
+                        "`status` TEXT NOT NULL, " +
+                        "`mode` TEXT NOT NULL)"
+                )
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -33,7 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "reminder_motor.db"
-                ).addMigrations(MIGRATION_1_2).build().also { instance = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { instance = it }
             }
     }
 }

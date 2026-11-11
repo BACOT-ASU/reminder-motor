@@ -28,6 +28,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bacad.remindermotor.notify.Notifier
 import com.bacad.remindermotor.notify.ReminderWorker
 import com.bacad.remindermotor.settings.AppSettings
+import com.bacad.remindermotor.tracking.TrackingController
+import com.bacad.remindermotor.tracking.TripNotifications
 import com.bacad.remindermotor.ui.AddMotorScreen
 import com.bacad.remindermotor.ui.EditMotorScreen
 import com.bacad.remindermotor.ui.ItemSettingsScreen
@@ -36,6 +38,7 @@ import com.bacad.remindermotor.ui.MotorDetailScreen
 import com.bacad.remindermotor.ui.MotorListScreen
 import com.bacad.remindermotor.ui.MotorViewModel
 import com.bacad.remindermotor.ui.SettingsScreen
+import com.bacad.remindermotor.ui.TripsScreen
 
 /** AppCompatActivity dipakai supaya bahasa aplikasi bisa diganti dari dalam aplikasi. */
 class MainActivity : AppCompatActivity() {
@@ -43,10 +46,14 @@ class MainActivity : AppCompatActivity() {
     /** Motor yang diminta dibuka dari notifikasi (0 = tidak ada). */
     private var openMotorRequest by mutableLongStateOf(0L)
 
+    /** Diminta membuka layar perjalanan dari notifikasi konfirmasi. */
+    private var openTripsRequest by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Notifier.createChannels(this)
         ReminderWorker.schedule(this)
+        TrackingController.applyMode(this)
         readIntent(intent)
 
         setContent {
@@ -58,7 +65,9 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         App(
                             openMotorRequest = openMotorRequest,
-                            onMotorRequestHandled = { openMotorRequest = 0L }
+                            onMotorRequestHandled = { openMotorRequest = 0L },
+                            openTripsRequest = openTripsRequest,
+                            onTripsRequestHandled = { openTripsRequest = false }
                         )
                     }
                 }
@@ -74,6 +83,7 @@ class MainActivity : AppCompatActivity() {
     private fun readIntent(intent: Intent?) {
         val id = intent?.getLongExtra(Notifier.EXTRA_MOTOR_ID, 0L) ?: 0L
         if (id > 0) openMotorRequest = id
+        if (intent?.getBooleanExtra(TripNotifications.EXTRA_OPEN_TRIPS, false) == true) openTripsRequest = true
     }
 }
 
@@ -84,18 +94,29 @@ private object Route {
     const val ITEMS = "items"
     const val SETTINGS = "settings"
     const val EDIT = "edit"
+    const val TRIPS = "trips"
 }
 
 @Composable
 fun App(
     openMotorRequest: Long,
     onMotorRequestHandled: () -> Unit,
+    openTripsRequest: Boolean,
+    onTripsRequestHandled: () -> Unit,
     vm: MotorViewModel = viewModel()
 ) {
     var route by rememberSaveable { mutableStateOf(Route.LIST) }
     var motorId by rememberSaveable { mutableLongStateOf(0L) }
     val motors by vm.motors.collectAsStateWithLifecycle()
+    val pendingTrips by vm.pendingTripCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    LaunchedEffect(openTripsRequest) {
+        if (openTripsRequest) {
+            route = Route.TRIPS
+            onTripsRequestHandled()
+        }
+    }
 
     // Izin notifikasi (Android 13+), diminta sekali saat aplikasi dibuka.
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -143,8 +164,8 @@ fun App(
                 EditMotorScreen(
                     motor = motor,
                     onBack = { route = Route.DETAIL },
-                    onSave = { name, plate, newPhoto, removePhoto ->
-                        vm.updateMotorInfo(motor, name, plate, newPhoto, removePhoto) { route = Route.DETAIL }
+                    onSave = { name, plate, newPhoto, removePhoto, bluetooth ->
+                        vm.updateMotorInfo(motor, name, plate, newPhoto, removePhoto, bluetooth) { route = Route.DETAIL }
                     }
                 )
             }
@@ -155,6 +176,11 @@ fun App(
             onBack = { route = Route.DETAIL }
         )
         Route.SETTINGS -> SettingsScreen(
+            vm = vm,
+            onBack = { route = Route.LIST },
+            onOpenTrips = { route = Route.TRIPS }
+        )
+        Route.TRIPS -> TripsScreen(
             vm = vm,
             onBack = { route = Route.LIST }
         )
@@ -174,7 +200,9 @@ fun App(
                     Toast.makeText(context, R.string.check_now_started, Toast.LENGTH_SHORT).show()
                 }
             },
-            onSettings = { route = Route.SETTINGS }
+            onSettings = { route = Route.SETTINGS },
+            pendingTrips = pendingTrips,
+            onOpenTrips = { route = Route.TRIPS }
         )
     }
 }
