@@ -63,4 +63,14 @@
     <string name="date_future_error">Date cannot be in the future.</string>
     <string name="km_at_service">Odometer at that time (km)</string>
     <string name="km_above_odometer_error">Cannot be higher than the current odometer (%1$,d km).</string>
+
+    <!-- Tahap 4: notifikasi -->
+    <string name="channel_service">Service reminders</string>
+    <string name="channel_odometer">Odometer update reminders</string>
+    <string name="notif_service_title">%1$s needs attention</string>
+    <string name="notif_odometer_title">Update the km for %1$s</string>
+    <string name="notif_odometer_text">The odometer hasn\'t been updated for %1$d days. Enter the latest km from the speedometer so reminders stay accurate.</string>
+    <string name="check_now">Check reminders now</string>
+    <string name="check_now_started">Checking… items that are due will appear as notifications.</string>
+    <string name="notif_permission_needed">Notifications are turned off. Allow notifications for this app first.</string>
 </resources>

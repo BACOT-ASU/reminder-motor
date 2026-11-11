@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -61,10 +62,23 @@ import com.bacad.remindermotor.data.MotorType
 fun MotorListScreen(
     motors: List<Motor>,
     onAdd: () -> Unit,
-    onOpen: (Motor) -> Unit
+    onOpen: (Motor) -> Unit,
+    onCheckNow: () -> Unit
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = onCheckNow) {
+                        Icon(
+                            Icons.Filled.NotificationsActive,
+                            contentDescription = stringResource(R.string.check_now)
+                        )
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAdd) {
                 Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_motor))

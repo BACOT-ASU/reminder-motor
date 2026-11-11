@@ -13,8 +13,8 @@ android {
         applicationId = "com.bacad.remindermotor"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
     }
 
     buildTypes {
@@ -49,6 +49,9 @@ dependencies {
     // ViewModel untuk Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
+
+    // WorkManager: pengecekan harian di latar belakang
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     // Room: database lokal (SQLite)
     val roomVersion = "2.6.1"

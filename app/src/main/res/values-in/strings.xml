@@ -63,4 +63,14 @@
     <string name="date_future_error">Tanggal tidak boleh di masa depan.</string>
     <string name="km_at_service">Odometer saat itu (km)</string>
     <string name="km_above_odometer_error">Tidak boleh lebih besar dari odometer sekarang (%1$,d km).</string>
+
+    <!-- Tahap 4: notifikasi -->
+    <string name="channel_service">Pengingat servis</string>
+    <string name="channel_odometer">Pengingat update odometer</string>
+    <string name="notif_service_title">%1$s perlu perhatian</string>
+    <string name="notif_odometer_title">Update km %1$s</string>
+    <string name="notif_odometer_text">Odometer belum diperbarui selama %1$d hari. Isi km terbaru dari spidometer supaya pengingat tetap akurat.</string>
+    <string name="check_now">Cek pengingat sekarang</string>
+    <string name="check_now_started">Sedang dicek… item yang sudah waktunya akan muncul sebagai notifikasi.</string>
+    <string name="notif_permission_needed">Notifikasi masih mati. Izinkan notifikasi untuk aplikasi ini dulu.</string>
 </resources>
