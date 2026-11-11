@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -79,6 +80,33 @@ interface AppDao {
 
     @Query("UPDATE maintenance_item SET lastNotifiedStatus = :status, lastNotifiedDate = :date WHERE id = :itemId")
     suspend fun updateNotified(itemId: Long, status: String?, date: Long?)
+
+    // ---- Atur item ----
+    @Update
+    suspend fun updateItem(item: MaintenanceItem)
+
+    @Delete
+    suspend fun deleteItem(item: MaintenanceItem)
+
+    // ---- Backup & restore ----
+    @Query("SELECT * FROM maintenance_item")
+    suspend fun getAllItems(): List<MaintenanceItem>
+
+    @Query("SELECT * FROM service_record")
+    suspend fun getAllRecords(): List<ServiceRecord>
+
+    @Query("SELECT * FROM odometer_log")
+    suspend fun getAllOdometerLogs(): List<OdometerLog>
+
+    @Query("DELETE FROM service_record") suspend fun clearRecords()
+    @Query("DELETE FROM odometer_log") suspend fun clearOdometerLogs()
+    @Query("DELETE FROM maintenance_item") suspend fun clearItems()
+    @Query("DELETE FROM motor") suspend fun clearMotors()
+
+    @Insert suspend fun insertMotors(list: List<Motor>)
+    @Insert suspend fun insertItems(list: List<MaintenanceItem>)
+    @Insert suspend fun insertRecords(list: List<ServiceRecord>)
+    @Insert suspend fun insertOdometerLogs(list: List<OdometerLog>)
 
     // ---- Odometer ----
     @Query("UPDATE motor SET odometerKm = :km, odometerDate = :date WHERE id = :motorId")

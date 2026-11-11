@@ -1,20 +1,26 @@
 package com.bacad.remindermotor.ui
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bacad.remindermotor.data.AppDatabase
+import com.bacad.remindermotor.data.Backup
+import com.bacad.remindermotor.data.ItemType
 import com.bacad.remindermotor.data.MaintenanceItem
 import com.bacad.remindermotor.data.Motor
 import com.bacad.remindermotor.data.MotorRepository
 import com.bacad.remindermotor.data.MotorType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MotorViewModel(app: Application) : AndroidViewModel(app) {
-    val repo = MotorRepository(AppDatabase.get(app))
+    private val db = AppDatabase.get(app)
+    val repo = MotorRepository(db)
 
     val motors: StateFlow<List<Motor>> = repo.observeMotors()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -36,6 +42,46 @@ class MotorViewModel(app: Application) : AndroidViewModel(app) {
 
     fun markDone(item: MaintenanceItem, odometerKm: Int) {
         viewModelScope.launch { repo.markDone(item, odometerKm) }
+    }
+
+    fun updateItem(item: MaintenanceItem) {
+        viewModelScope.launch { repo.updateItem(item) }
+    }
+
+    fun deleteItem(item: MaintenanceItem) {
+        viewModelScope.launch { repo.deleteItem(item) }
+    }
+
+    fun addCustomItem(motor: Motor, name: String, type: ItemType, km: Int?, days: Int?) {
+        viewModelScope.launch { repo.addCustomItem(motor, name, type, km, days) }
+    }
+
+    /** Tulis backup ke [uri]. onResult(true) jika berhasil. */
+    fun exportBackup(uri: Uri, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = runCatching {
+                val json = Backup.export(db)
+                withContext(Dispatchers.IO) {
+                    getApplication<Application>().contentResolver.openOutputStream(uri, "wt")!!
+                        .use { it.write(json.toByteArray()) }
+                }
+            }.isSuccess
+            onResult(ok)
+        }
+    }
+
+    /** Baca backup dari [uri] dan ganti semua data. onResult(true) jika berhasil. */
+    fun importBackup(uri: Uri, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = runCatching {
+                val json = withContext(Dispatchers.IO) {
+                    getApplication<Application>().contentResolver.openInputStream(uri)!!
+                        .use { it.readBytes().toString(Charsets.UTF_8) }
+                }
+                Backup.import(db, json)
+            }.isSuccess
+            onResult(ok)
+        }
     }
 
     fun setLastService(item: MaintenanceItem, date: Long, km: Int) {

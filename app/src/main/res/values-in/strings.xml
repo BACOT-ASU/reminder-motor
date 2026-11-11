@@ -73,4 +73,30 @@
     <string name="check_now">Cek pengingat sekarang</string>
     <string name="check_now_started">Sedang dicek… item yang sudah waktunya akan muncul sebagai notifikasi.</string>
     <string name="notif_permission_needed">Notifikasi masih mati. Izinkan notifikasi untuk aplikasi ini dulu.</string>
+
+    <!-- Tahap 5: pengaturan -->
+    <string name="settings">Pengaturan</string>
+    <string name="language">Bahasa</string>
+    <string name="notifications">Notifikasi</string>
+    <string name="notif_time">Jam cek harian</string>
+    <string name="battery_hint">Kalau pengingat tidak muncul, atur penggunaan baterai aplikasi ini ke "Tanpa batasan" di pengaturan HP.</string>
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="backup_now">Backup data</string>
+    <string name="backup_now_desc">Simpan semua motor dan riwayat servis ke sebuah file</string>
+    <string name="restore">Restore data</string>
+    <string name="restore_desc">Muat file backup (mengganti data sekarang)</string>
+    <string name="restore_confirm">Semua data sekarang akan diganti dengan isi file backup. Lanjutkan?</string>
+    <string name="backup_done">Backup tersimpan.</string>
+    <string name="backup_failed">Backup gagal.</string>
+    <string name="restore_done">Data berhasil dipulihkan.</string>
+    <string name="restore_failed">File ini bukan backup Reminder Motor yang valid.</string>
+    <string name="manage_items">Atur item</string>
+    <string name="manual_hint">Interval bawaan hanya perkiraan. Cocokkan dengan buku manual motormu. Ketuk item untuk mengubah; pakai tombol geser untuk menyembunyikan.</string>
+    <string name="add_custom_item">Tambah item</string>
+    <string name="item_name">Nama item</string>
+    <string name="interval_km_field">Interval (km)</string>
+    <string name="interval_days_field">Interval (hari)</string>
+    <string name="interval_fields_hint">Isi minimal salah satu. Mana yang tercapai lebih dulu akan memicu pengingat.</string>
+    <string name="delete_item">Hapus item</string>
+    <string name="delete_item_confirm">Hapus item ini beserta riwayatnya?</string>
 </resources>

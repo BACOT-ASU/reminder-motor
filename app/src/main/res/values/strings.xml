@@ -73,4 +73,30 @@
     <string name="check_now">Check reminders now</string>
     <string name="check_now_started">Checking… items that are due will appear as notifications.</string>
     <string name="notif_permission_needed">Notifications are turned off. Allow notifications for this app first.</string>
+
+    <!-- Tahap 5: pengaturan -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="notifications">Notifications</string>
+    <string name="notif_time">Daily check time</string>
+    <string name="battery_hint">If reminders don\'t appear, set this app\'s battery usage to "Unrestricted" in your phone settings.</string>
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="backup_now">Back up data</string>
+    <string name="backup_now_desc">Save all motorcycles and service history to a file</string>
+    <string name="restore">Restore data</string>
+    <string name="restore_desc">Load a backup file (replaces current data)</string>
+    <string name="restore_confirm">All current data will be replaced with the contents of the backup file. Continue?</string>
+    <string name="backup_done">Backup saved.</string>
+    <string name="backup_failed">Backup failed.</string>
+    <string name="restore_done">Data restored.</string>
+    <string name="restore_failed">This file is not a valid Motor Reminder backup.</string>
+    <string name="manage_items">Manage items</string>
+    <string name="manual_hint">Default intervals are rough estimates. Match them with your motorcycle\'s manual. Tap an item to edit it; use the switch to hide it.</string>
+    <string name="add_custom_item">Add item</string>
+    <string name="item_name">Item name</string>
+    <string name="interval_km_field">Interval (km)</string>
+    <string name="interval_days_field">Interval (days)</string>
+    <string name="interval_fields_hint">Fill in at least one. Whichever is reached first triggers the reminder.</string>
+    <string name="delete_item">Delete item</string>
+    <string name="delete_item_confirm">Delete this item and its history?</string>
 </resources>

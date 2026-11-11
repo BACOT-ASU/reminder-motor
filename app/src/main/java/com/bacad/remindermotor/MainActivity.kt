@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,12 +27,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bacad.remindermotor.notify.Notifier
 import com.bacad.remindermotor.notify.ReminderWorker
+import com.bacad.remindermotor.settings.AppSettings
 import com.bacad.remindermotor.ui.AddMotorScreen
+import com.bacad.remindermotor.ui.ItemSettingsScreen
+import com.bacad.remindermotor.ui.LanguagePickerScreen
 import com.bacad.remindermotor.ui.MotorDetailScreen
 import com.bacad.remindermotor.ui.MotorListScreen
 import com.bacad.remindermotor.ui.MotorViewModel
+import com.bacad.remindermotor.ui.SettingsScreen
 
-class MainActivity : ComponentActivity() {
+/** AppCompatActivity dipakai supaya bahasa aplikasi bisa diganti dari dalam aplikasi. */
+class MainActivity : AppCompatActivity() {
 
     /** Motor yang diminta dibuka dari notifikasi (0 = tidak ada). */
     private var openMotorRequest by mutableLongStateOf(0L)
@@ -45,10 +51,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    App(
-                        openMotorRequest = openMotorRequest,
-                        onMotorRequestHandled = { openMotorRequest = 0L }
-                    )
+                    var languageChosen by remember { mutableStateOf(AppSettings.isLanguageChosen(this)) }
+                    if (!languageChosen) {
+                        LanguagePickerScreen(onChosen = { languageChosen = true })
+                    } else {
+                        App(
+                            openMotorRequest = openMotorRequest,
+                            onMotorRequestHandled = { openMotorRequest = 0L }
+                        )
+                    }
                 }
             }
         }
@@ -65,24 +76,29 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Navigasi sederhana tanpa library tambahan:
- * -1 = daftar motor, 0 = tambah motor, >0 = detail motor dengan id tersebut.
- */
+private object Route {
+    const val LIST = "list"
+    const val ADD = "add"
+    const val DETAIL = "detail"
+    const val ITEMS = "items"
+    const val SETTINGS = "settings"
+}
+
 @Composable
 fun App(
     openMotorRequest: Long,
     onMotorRequestHandled: () -> Unit,
     vm: MotorViewModel = viewModel()
 ) {
-    var screen by rememberSaveable { mutableStateOf(-1L) }
+    var route by rememberSaveable { mutableStateOf(Route.LIST) }
+    var motorId by rememberSaveable { mutableLongStateOf(0L) }
     val motors by vm.motors.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // Izin notifikasi (Android 13+), diminta sekali saat aplikasi dibuka.
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { /* hasil tidak perlu diproses: worker mengecek izin sendiri */ }
+    ) { /* worker mengecek izin sendiri */ }
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= 33 && !Notifier.canNotify(context)) {
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -92,18 +108,48 @@ fun App(
     // Dibuka dari notifikasi: langsung ke motor yang bersangkutan.
     LaunchedEffect(openMotorRequest) {
         if (openMotorRequest > 0) {
-            screen = openMotorRequest
+            motorId = openMotorRequest
+            route = Route.DETAIL
             onMotorRequestHandled()
         }
     }
 
-    BackHandler(enabled = screen != -1L) { screen = -1L }
+    BackHandler(enabled = route != Route.LIST) {
+        route = if (route == Route.ITEMS) Route.DETAIL else Route.LIST
+    }
 
-    when {
-        screen == -1L -> MotorListScreen(
+    when (route) {
+        Route.ADD -> AddMotorScreen(
+            onBack = { route = Route.LIST },
+            onSave = { name, type, radiator, km ->
+                vm.addMotor(name, type, radiator, km) { newId ->
+                    motorId = newId
+                    route = Route.DETAIL
+                }
+            }
+        )
+        Route.DETAIL -> MotorDetailScreen(
+            motorId = motorId,
+            vm = vm,
+            onBack = { route = Route.LIST },
+            onManageItems = { route = Route.ITEMS }
+        )
+        Route.ITEMS -> ItemSettingsScreen(
+            motorId = motorId,
+            vm = vm,
+            onBack = { route = Route.DETAIL }
+        )
+        Route.SETTINGS -> SettingsScreen(
+            vm = vm,
+            onBack = { route = Route.LIST }
+        )
+        else -> MotorListScreen(
             motors = motors,
-            onAdd = { screen = 0L },
-            onOpen = { screen = it.id },
+            onAdd = { route = Route.ADD },
+            onOpen = {
+                motorId = it.id
+                route = Route.DETAIL
+            },
             onCheckNow = {
                 if (!Notifier.canNotify(context)) {
                     Toast.makeText(context, R.string.notif_permission_needed, Toast.LENGTH_LONG).show()
@@ -112,18 +158,8 @@ fun App(
                     ReminderWorker.runNow(context, force = true)
                     Toast.makeText(context, R.string.check_now_started, Toast.LENGTH_SHORT).show()
                 }
-            }
-        )
-        screen == 0L -> AddMotorScreen(
-            onBack = { screen = -1L },
-            onSave = { name, type, radiator, km ->
-                vm.addMotor(name, type, radiator, km) { newId -> screen = newId }
-            }
-        )
-        else -> MotorDetailScreen(
-            motorId = screen,
-            vm = vm,
-            onBack = { screen = -1L }
+            },
+            onSettings = { route = Route.SETTINGS }
         )
     }
 }

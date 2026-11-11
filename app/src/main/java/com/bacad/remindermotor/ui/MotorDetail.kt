@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -110,7 +111,8 @@ private fun formatDate(epochDay: Long): String = LocalDate.ofEpochDay(epochDay).
 fun MotorDetailScreen(
     motorId: Long,
     vm: MotorViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onManageItems: () -> Unit
 ) {
     val motor by remember(motorId) { vm.repo.observeMotor(motorId) }.collectAsState(initial = null)
     val items by remember(motorId) { vm.repo.observeItems(motorId) }.collectAsState(initial = emptyList())
@@ -137,6 +139,9 @@ fun MotorDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onManageItems) {
+                        Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.manage_items))
+                    }
                     IconButton(onClick = { confirmDelete = true }) {
                         Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.delete_motor))
                     }

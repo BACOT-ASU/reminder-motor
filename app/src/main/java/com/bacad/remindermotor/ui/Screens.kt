@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -63,7 +64,8 @@ fun MotorListScreen(
     motors: List<Motor>,
     onAdd: () -> Unit,
     onOpen: (Motor) -> Unit,
-    onCheckNow: () -> Unit
+    onCheckNow: () -> Unit,
+    onSettings: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -75,6 +77,9 @@ fun MotorListScreen(
                             Icons.Filled.NotificationsActive,
                             contentDescription = stringResource(R.string.check_now)
                         )
+                    }
+                    IconButton(onClick = onSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 }
             )

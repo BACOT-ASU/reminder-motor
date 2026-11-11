@@ -14,6 +14,7 @@ import com.bacad.remindermotor.data.AppDatabase
 import com.bacad.remindermotor.data.ItemStatus
 import com.bacad.remindermotor.data.ItemType
 import com.bacad.remindermotor.data.StatusCalc
+import com.bacad.remindermotor.settings.AppSettings
 import com.bacad.remindermotor.ui.itemNameRes
 import java.time.Duration
 import java.time.LocalDate
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit
  * - Kirim notifikasi saat item berubah ke kuning atau merah.
  * - Ulangi tiap [REPEAT_RED_DAYS] hari selama item masih merah.
  * - Ingatkan update odometer jika belum diisi [ODOMETER_REMIND_DAYS] hari.
- * Satu notifikasi per motor supaya tidak banjir.
+ * Satu notifikasi per motor supaya tidak banjir. Jam cek diatur di Pengaturan.
  */
 class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
@@ -109,13 +110,16 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         const val REPEAT_RED_DAYS = 3
         const val ODOMETER_REMIND_DAYS = 7
 
-        /** Jam pengecekan harian (bisa diubah di tahap pengaturan). */
-        private val CHECK_TIME: LocalTime = LocalTime.of(7, 0)
-
         /** Jadwalkan pengecekan harian. Aman dipanggil berkali-kali (KEEP). */
-        fun schedule(context: Context) {
+        fun schedule(context: Context) = enqueue(context, ExistingPeriodicWorkPolicy.KEEP)
+
+        /** Dipanggil saat jam notifikasi diubah di Pengaturan. */
+        fun reschedule(context: Context) = enqueue(context, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
+
+        private fun enqueue(context: Context, policy: ExistingPeriodicWorkPolicy) {
+            val checkTime = LocalTime.of(AppSettings.notifHour(context), AppSettings.notifMinute(context))
             val now = LocalDateTime.now()
-            var next = now.toLocalDate().atTime(CHECK_TIME)
+            var next = now.toLocalDate().atTime(checkTime)
             if (!next.isAfter(now)) next = next.plusDays(1)
             val delayMinutes = Duration.between(now, next).toMinutes()
 
@@ -123,7 +127,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
                 .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
                 .build()
             WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(PERIODIC_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+                .enqueueUniquePeriodicWork(PERIODIC_NAME, policy, request)
         }
 
         /** Cek sekarang juga (tombol di aplikasi); force = tampilkan semua yang kuning/merah. */

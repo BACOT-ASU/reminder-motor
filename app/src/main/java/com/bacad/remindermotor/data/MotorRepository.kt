@@ -80,6 +80,30 @@ class MotorRepository(private val db: AppDatabase) {
         }
     }
 
+    suspend fun updateItem(item: MaintenanceItem) = dao.updateItem(item)
+
+    suspend fun deleteItem(item: MaintenanceItem) = dao.deleteItem(item)
+
+    /** Item kustom baru, langsung diberi titik awal hari ini di odometer sekarang. */
+    suspend fun addCustomItem(motor: Motor, name: String, type: ItemType, intervalKm: Int?, intervalDays: Int?) {
+        val today = LocalDate.now().toEpochDay()
+        db.withTransaction {
+            val itemId = dao.insertItem(
+                MaintenanceItem(
+                    motorId = motor.id,
+                    key = null,
+                    customName = name,
+                    type = type,
+                    intervalKm = intervalKm,
+                    intervalDays = intervalDays
+                )
+            )
+            dao.insertRecord(
+                ServiceRecord(itemId = itemId, date = today, km = motor.odometerKm, action = ServiceAction.INITIAL)
+            )
+        }
+    }
+
     private fun actionFor(item: MaintenanceItem) =
         if (item.type == ItemType.CHECK) ServiceAction.CHECK else ServiceAction.REPLACE
 }
