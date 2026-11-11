@@ -2,22 +2,23 @@ package com.bacad.remindermotor
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bacad.remindermotor.ui.AddMotorScreen
+import com.bacad.remindermotor.ui.MotorDetailScreen
+import com.bacad.remindermotor.ui.MotorListScreen
+import com.bacad.remindermotor.ui.MotorViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,31 +26,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    WelcomeScreen()
+                    App()
                 }
             }
         }
     }
 }
 
+/**
+ * Navigasi sederhana tanpa library tambahan:
+ * -1 = daftar motor, 0 = tambah motor, >0 = detail motor dengan id tersebut.
+ */
 @Composable
-fun WelcomeScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineMedium
+fun App(vm: MotorViewModel = viewModel()) {
+    var screen by rememberSaveable { mutableStateOf(-1L) }
+    val motors by vm.motors.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = screen != -1L) { screen = -1L }
+
+    when {
+        screen == -1L -> MotorListScreen(
+            motors = motors,
+            onAdd = { screen = 0L },
+            onOpen = { screen = it.id }
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = stringResource(R.string.welcome_message),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
+        screen == 0L -> AddMotorScreen(
+            onBack = { screen = -1L },
+            onSave = { name, type, radiator, km ->
+                vm.addMotor(name, type, radiator, km) { newId -> screen = newId }
+            }
+        )
+        else -> MotorDetailScreen(
+            motorId = screen,
+            vm = vm,
+            onBack = { screen = -1L }
         )
     }
 }

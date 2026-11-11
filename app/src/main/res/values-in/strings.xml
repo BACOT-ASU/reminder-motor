@@ -2,5 +2,37 @@
 <!-- Bahasa Indonesia -->
 <resources>
     <string name="app_name">Reminder Motor</string>
-    <string name="welcome_message">Aplikasi berhasil terpasang. Fitur pengingat servis menyusul berikutnya.</string>
+
+    <string name="add_motor">Tambah motor</string>
+    <string name="no_motor_yet">Belum ada motor. Ketuk + untuk menambah.</string>
+    <string name="motor_name">Nama (mis. Beat, Vario)</string>
+    <string name="motor_type">Jenis</string>
+    <string name="type_matic">Matic</string>
+    <string name="type_manual">Manual</string>
+    <string name="has_radiator">Berpendingin cairan (ada radiator)</string>
+    <string name="current_odometer">Odometer sekarang (km)</string>
+    <string name="start_today_note">Semua item mulai dihitung dari hari ini. Tanggal servis terakhir per item bisa diatur nanti.</string>
+    <string name="save">Simpan</string>
+    <string name="back">Kembali</string>
+    <string name="delete">Hapus</string>
+    <string name="cancel">Batal</string>
+    <string name="delete_motor">Hapus motor</string>
+    <string name="delete_motor_confirm">Hapus %1$s beserta semua data servisnya?</string>
+    <string name="km_value">%1$d km</string>
+    <string name="every_km">tiap %1$d km</string>
+    <string name="every_days">tiap %1$d hari</string>
+    <string name="item_type_replace">Ganti</string>
+    <string name="item_type_check">Cek</string>
+
+    <string name="item_engine_oil">Oli mesin</string>
+    <string name="item_gear_oil">Oli gardan</string>
+    <string name="item_air_filter">Filter udara</string>
+    <string name="item_spark_plug">Busi</string>
+    <string name="item_brake_pads">Kampas rem</string>
+    <string name="item_tires">Ban</string>
+    <string name="item_chain">Rantai &amp; gear</string>
+    <string name="item_battery">Aki</string>
+    <string name="item_coolant">Air radiator</string>
+    <string name="item_brake_fluid">Minyak rem</string>
+    <string name="item_cvt_belt">V-belt &amp; roller</string>
 </resources>

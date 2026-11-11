@@ -2,5 +2,37 @@
 <!-- Default (English). Indonesian translations live in values-in/strings.xml -->
 <resources>
     <string name="app_name">Motor Reminder</string>
-    <string name="welcome_message">The app is installed. Service reminder features are coming next.</string>
+
+    <string name="add_motor">Add motorcycle</string>
+    <string name="no_motor_yet">No motorcycle yet. Tap + to add one.</string>
+    <string name="motor_name">Name (e.g. Beat, Vario)</string>
+    <string name="motor_type">Type</string>
+    <string name="type_matic">Automatic</string>
+    <string name="type_manual">Manual</string>
+    <string name="has_radiator">Liquid-cooled (has radiator)</string>
+    <string name="current_odometer">Current odometer (km)</string>
+    <string name="start_today_note">All items start counting from today. You can set the last service date for each item later.</string>
+    <string name="save">Save</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_motor">Delete motorcycle</string>
+    <string name="delete_motor_confirm">Delete %1$s and all its service data?</string>
+    <string name="km_value">%1$d km</string>
+    <string name="every_km">every %1$d km</string>
+    <string name="every_days">every %1$d days</string>
+    <string name="item_type_replace">Replace</string>
+    <string name="item_type_check">Check</string>
+
+    <string name="item_engine_oil">Engine oil</string>
+    <string name="item_gear_oil">Gear oil</string>
+    <string name="item_air_filter">Air filter</string>
+    <string name="item_spark_plug">Spark plug</string>
+    <string name="item_brake_pads">Brake pads</string>
+    <string name="item_tires">Tires</string>
+    <string name="item_chain">Chain &amp; sprocket</string>
+    <string name="item_battery">Battery</string>
+    <string name="item_coolant">Coolant</string>
+    <string name="item_brake_fluid">Brake fluid</string>
+    <string name="item_cvt_belt">CVT belt &amp; rollers</string>
 </resources>
